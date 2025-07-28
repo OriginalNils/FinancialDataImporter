@@ -5,7 +5,7 @@ setup(
     version="0.1.1",
     author="Nils Döring",
     author_email="ndoering@students.uni-mainz.de",
-    description="Ein einfacher Importer für Finanzmarktdaten von Yahoo Finance mit Caching-Funktion.",
+    description="A simple importer for financial market data from Yahoo Finance with caching function.",
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
     url="https://github.com/OriginalNils/FinancialDataImporter", # Optional: Link zum GitHub-Repo
