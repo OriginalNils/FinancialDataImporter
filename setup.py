@@ -2,13 +2,16 @@
 
 from setuptools import setup, find_packages
 
+with open('README.md', encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name="financialdataimporter",
     version="0.1.1",
     author="Nils Döring",
     author_email="ndoering@students.uni-mainz.de",
     description="A simple importer for financial market data from Yahoo Finance with caching function.",
-    long_description=open('README.md').read(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/OriginalNils/FinancialDataImporter", # Optional: Link zum GitHub-Repo
     
