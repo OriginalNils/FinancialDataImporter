@@ -15,6 +15,28 @@ class YahooFinanceImporter:
         self.cache_dir = cache_dir
         os.makedirs(self.cache_dir, exist_ok=True)
 
+    def _validate_dates(self, start_date: str, end_date: str):
+        """
+        Catch of date errors.
+        """
+        try:
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+        except ValueError:
+            raise ValueError(
+                f"Invalid date format. Please use 'YYYY-MM-DD' and ensure that the dates are valid."
+            )
+
+        if start_dt > end_dt:
+            raise ValueError(
+                f"The start date ({start_date}) must not be after the end date ({end_date})."
+            )
+        
+        if start_dt > datetime.now():
+            raise ValueError(
+                f"The start date ({start_date}) is in the future. Future dates cannot be retrieved."
+            )
+
     def get_data(self, ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
         """
         Retrieves historical price data for a specific ticker and time period.
