@@ -41,9 +41,9 @@ class YahooFinanceImporter:
             data = pd.read_csv(cache_path, index_col=0, parse_dates=True)
             return data
 
-        print(f"Lade '{ticker}' from yfinance API...")
+        print(f"Load '{ticker}' from yfinance API...")
         try:
-            data = yf.download(ticker, start=start_date, end=end_date)
+            data = yf.download(ticker, start=start_date, end=end_date, auto_adjust=True)
             
             if data.empty:
                 raise ValueError(f"No data found for ticker '{ticker}'. Is the ticker symbol correct?")
@@ -52,7 +52,10 @@ class YahooFinanceImporter:
             print(f"Error downloading data: {e}")
             raise
 
-        # --- Schritt 3: Daten in den Cache speichern ---
+        if isinstance(data.columns, pd.MultiIndex):
+            print("...Clean up multi-level header...")
+            data.columns = data.columns.get_level_values(0)
+
         print(f"Save '{ticker}' in cache...")
         data.to_csv(cache_path)
 
