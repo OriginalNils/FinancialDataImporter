@@ -1,0 +1,42 @@
+# .gitignore
+
+# 1. Python-spezifische Dateien und Ordner
+# -----------------------------------------------------------------------------
+# Bytecode-Dateien (von Python generiert)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ordner, die beim Installieren und Bauen von Paketen entstehen
+# Dein "financialdataimporter.egg-info" Ordner wird hiermit ignoriert
+*.egg-info/
+build/
+dist/
+eggs/
+*.egg
+
+# 2. Projekt-spezifische Ordner
+# -----------------------------------------------------------------------------
+# Unser Cache-Ordner für die heruntergeladenen Finanzdaten
+cache/
+
+# 3. Virtuelle Umgebungen
+# -----------------------------------------------------------------------------
+# Sehr wichtig, um die lokale Umgebung nicht einzuchecken
+.venv/
+venv/
+env/
+ENV/
+
+# 4. IDE- und Editor-spezifische Konfigurationsordner
+# -----------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 5. Betriebssystem-spezifische Dateien
+# -----------------------------------------------------------------------------
+.DS_Store  # macOS
+Thumbs.db  # Windows
