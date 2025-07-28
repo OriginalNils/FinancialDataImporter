@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="financialdataimporter",
-    version="0.1.0",
+    version="0.1.1",
     author="Nils Döring",
     author_email="ndoering@students.uni-mainz.de",
     description="Ein einfacher Importer für Finanzmarktdaten von Yahoo Finance mit Caching-Funktion.",
