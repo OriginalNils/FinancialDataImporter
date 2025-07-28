@@ -1,5 +1,6 @@
 # .gitignore
 
+run_test.py
 # 1. Python-spezifische Dateien und Ordner
 # -----------------------------------------------------------------------------
 # Bytecode-Dateien (von Python generiert)
