@@ -19,7 +19,7 @@ To use the package, clone the repository and install it using pip.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/OriginalNils/FinancialDataImporter.git
+git clone https://github.com/OriginalNils/MovingAverageBacktester.git
 
 # 2. Navigate into the directory
 cd FinancialDataImporter
