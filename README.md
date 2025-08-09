@@ -45,7 +45,7 @@ stock_data = importer.get_data('AAPL', '2025-01-01', '2025-07-25')
 print(stock_data.head())
 ```
 
-#### Custom Cache Directory
+#### Custom Cache Directory and clearing of Cache Directory
 Provide a path to the cache_dir argument to use a specific, centralized cache location
 
 ```python
@@ -57,7 +57,11 @@ importer = YahooFinanceImporter(cache_dir=custom_path)
 
 stock_data = importer.get_data('TSLA', '2025-01-01', '2025-07-25')
 print(stock_data.head())
+importer.clear_cache()
 ```
+
+#### Clearing Cache Directory
+
 ## 🛡️ Error Handling
 
 The module catches invalid inputs and provides clear error messages instead of crashing.
