@@ -4,7 +4,6 @@ import yfinance as yf
 from datetime import datetime
 
 class YahooFinanceImporter:
-    # Class to cash and download finance data from Yahoo Finance
     def __init__(self, cache_dir: str = "cache"):
         """
         Initialize Importer.
@@ -13,13 +12,11 @@ class YahooFinanceImporter:
             cache_dir (str): Name of directory of cache files.
         """
         if cache_dir is None:
-            # Standardmäßig den Cache-Ordner im aktuellen Arbeitsverzeichnis erstellen
             self.cache_dir = os.path.join(os.getcwd(), "cache")
         else:
-            # Den vom Benutzer angegebenen Pfad verwenden
             self.cache_dir = cache_dir
         
-        print(f"Cache-Verzeichnis wird verwendet: {self.cache_dir}")
+        print(f"Cache directory is used: {self.cache_dir}")
         os.makedirs(self.cache_dir, exist_ok=True)
 
     def _validate_dates(self, start_date: str, end_date: str):
