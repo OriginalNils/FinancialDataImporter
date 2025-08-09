@@ -86,3 +86,19 @@ class YahooFinanceImporter:
         data.to_csv(cache_path)
 
         return data
+    
+    def clear_cache(self):
+        """
+        Deletes all files in the cache directory.
+        """
+        print(f"Clearing cache at: {self.cache_dir}")
+        files_deleted = 0
+        try:
+            for filename in os.listdir(self.cache_dir):
+                file_path = os.path.join(self.cache_dir, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                    files_deleted += 1
+            print(f"✅ Cache cleared. {files_deleted} files deleted.")
+        except Exception as e:
+            print(f"Error clearing cache: {e}")

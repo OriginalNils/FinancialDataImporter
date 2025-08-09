@@ -7,7 +7,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name="financialdataimporter",
-    version="0.1.1",
+    version="0.1.2",
     author="Nils Döring",
     author_email="ndoering@students.uni-mainz.de",
     description="A simple importer for financial market data from Yahoo Finance with caching function.",
