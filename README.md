@@ -30,37 +30,118 @@ pip install -e .
     
 ## 💻 Usage Example
 
-The importer can be used with its default settings or with a custom cache location.
+The new modular structure makes using the importer very flexible. The key is to first instantiate a specific data source (like `YahooFinanceSource`) and then pass it to the main FinancialDataImporter. Right now there is just YahooFinance as a data source
 
-#### Default Behavior
-If you don't specify a `cache_dir`, a cache folder will be created in the same directory where you run your script.
+Here's how to use it with the Yahoo Finance data source:
 
-```python
-from financialdataimporter import YahooFinanceImporter
-
-# This will create a './cache/' folder in your current directory
-importer = YahooFinanceImporter()
-
-stock_data = importer.get_data('AAPL', '2025-01-01', '2025-07-25')
-print(stock_data.head())
-```
-
-#### Custom Cache Directory and clearing of Cache Directory
-Provide a path to the cache_dir argument to use a specific, centralized cache location
+#### Example 1: Fetching Historical Price Data
+This is the most common use case: getting the OHLCV (Open, High, Low, Close, Volume) data for a stock.
 
 ```python
-from financialdataimporter import YahooFinanceImporter
+from financialdataimporter import FinancialDataImporter, YahooFinanceSource
 
-# All cache files will be stored in this specific folder
-custom_path = "/path/to/your/global_cache"
-importer = YahooFinanceImporter(cache_dir=custom_path)
+# 1. Choose and configure the data source
+yf_source = YahooFinanceSource(cache_dir="stock_cache")
 
-stock_data = importer.get_data('TSLA', '2025-01-01', '2025-07-25')
-print(stock_data.head())
-importer.clear_cache()
+# 2. Initialize the main importer with the source
+importer = FinancialDataImporter(source=yf_source)
+
+# 3. Fetch the data
+try:
+    print("Fetching historical data for Apple (AAPL)...")
+    price_data = importer.get_data('AAPL', '2025-01-01', '2025-08-08')
+    print(price_data.tail()) # Show the last 5 days
+except Exception as e:
+    print(f"An error occurred: {e}")
 ```
 
-#### Clearing Cache Directory
+#### Example 2: Fetching Fundamental Company Data
+This example shows how to get a dictionary of key metrics for a company, such as its sector, P/E ratio, and dividend yield.
+
+```python
+from financialdataimporter import FinancialDataImporter, YahooFinanceSource
+
+yf_source = YahooFinanceSource(cache_dir="stock_cache")
+importer = FinancialDataImporter(source=yf_source)
+
+try:
+    print("Fetching fundamental data for Microsoft (MSFT)...")
+    fundamentals = importer.get_fundamentals('MSFT')
+    
+    if fundamentals:
+        print(f"Company: {fundamentals.get('longName')}")
+        print(f"Sector: {fundamentals.get('sector')}")
+        print(f"P/E Ratio: {fundamentals.get('trailingPE')}")
+        print(f"Market Cap: {fundamentals.get('marketCap'):,}")
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+```
+
+#### Example 3: Working with Option Chains
+This example demonstrates the two-step process for fetching option data: first, you get the available expiration dates, and then you fetch the option chain for a specific date.
+
+```python
+from financialdataimporter import FinancialDataImporter, YahooFinanceSource
+
+yf_source = YahooFinanceSource(cache_dir="stock_cache")
+importer = FinancialDataImporter(source=yf_source)
+
+try:
+    print("Fetching option data for NVIDIA (NVDA)...")
+    
+    # Step 1: Get all available expiration dates
+    exp_dates = yf_source.get_option_expiration_dates('NVDA') # Using the source directly
+    
+    if not exp_dates:
+        print("No option expiration dates found.")
+    else:
+        print(f"Available expiration dates: {exp_dates[:5]}...")
+        
+        # Step 2: Fetch the full option chain for the next expiration date
+        next_expiration = exp_dates[0]
+        option_data = yf_source.get_option_chain('NVDA', next_expiration) # Using the source directly
+        
+        if option_data:
+            print(f"\n--- Call Options expiring on {next_expiration} ---")
+            print(option_data['calls'].head())
+            
+            print(f"\n--- Put Options expiring on {next_expiration} ---")
+            print(option_data['puts'].head())
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+```
+
+#### Example 4: Clearing the Cache
+If you need to force a fresh download of all data, you can use the `clear_cache` method on your data source object. This will delete all files within the specified cache directory.
+
+```python
+from financialdataimporter import FinancialDataImporter, YahooFinanceSource
+
+# 1. Choose and configure the data source
+# We use a specific cache folder for this example
+yf_source = YahooFinanceSource(cache_dir="temp_cache_for_demo")
+importer = FinancialDataImporter(source=yf_source)
+
+# --- Run 1: Fetches data from the API and creates a cache file ---
+print("--- FIRST RUN ---")
+importer.get_data('MSFT', '2025-01-01', '2025-03-01')
+
+# --- Run 2: Loads the same data from the cache ---
+print("\n--- SECOND RUN ---")
+importer.get_data('MSFT', '2025-01-01', '2025-03-01')
+
+# --- Clear the cache ---
+print("\n--- CLEARING CACHE ---")
+# Note: The clear_cache method is called on the source object
+yf_source.clear_cache()
+
+# --- Run 3: The cache is empty, so it fetches from the API again ---
+print("\n--- THIRD RUN ---")
+importer.get_data('MSFT', '2025-01-01', '2025-03-01')
+```
+
 
 ## 🛡️ Error Handling
 
