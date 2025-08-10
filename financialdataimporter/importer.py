@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import yfinance as yf
 from datetime import datetime
+import pickle
 
 class YahooFinanceImporter:
     def __init__(self, cache_dir: str = "cache"):
@@ -87,6 +88,96 @@ class YahooFinanceImporter:
 
         return data
     
+    def get_fundamentals(self, ticker: str) -> dict:
+        """
+        Retrieves a dictionary containing fundamental key figures for a ticker.
+
+        Args:
+            ticker (str): The ticker symbol.
+
+        Returns:
+            dict: A dictionary containing fundamental data.
+        """
+        cache_path = os.path.join(self.cache_dir, f"{ticker}_fundamentals.pkl")
+
+        if os.path.exists(cache_path):
+            print(f"Loading fundamental data for “{ticker}” from cache...")
+            with open(cache_path, 'rb') as f:
+                return pickle.load(f)
+
+        print(f"Retrieval of fundamental data for {ticker}...")
+        try:
+            stock = yf.Ticker(ticker)
+            fundamentals = stock.info
+            
+            print(f"Save fundamental data for “{ticker}” in the cache...")
+            with open(cache_path, 'wb') as f:
+                pickle.dump(fundamentals, f)
+            
+            return fundamentals
+        except Exception as e:
+            print(f"Error retrieving fundamental data for {ticker}: {e}")
+            return {}
+        
+    def get_option_expiration_dates(self, ticker: str) -> tuple:
+        """
+        Returns all available expiry dates for the options of a ticker.
+
+        Args:
+            ticker (str): The ticker symbol.
+
+        Returns:
+            tuple: A tuple of strings with the expiry dates.
+        """
+        print(f"Retrieval of expiry dates for {ticker}...")
+        try:
+            stock = yf.Ticker(ticker)
+            # .options returns a tuple containing all data
+            return stock.options
+        except Exception as e:
+            print(f"Retrieval of expiry dates for {ticker}: {e}")
+            return ()
+
+
+    def get_option_chain(self, ticker: str, expiration_date: str):
+        """
+        Retrieves the entire option chain (calls and puts) for a specific expiration date.
+
+        Args:
+            ticker (str): The ticker symbol.
+            expiration_date (str): A valid expiration date in the format “YYYY-MM-DD”.
+
+        Returns:
+            Options object: An object with .calls and .puts as attributes, which are DataFrames.
+        """
+        cache_path = os.path.join(self.cache_dir, f"{ticker}_option_{expiration_date}.pkl")
+
+        if os.path.exists(cache_path):
+            print(f"Loading option chain for “{ticker}” for {expiration_date} from cache...")
+            with open(cache_path, 'rb') as f:
+                return pickle.load(f)
+
+        print(f"Retrieving the option chain for {ticker} on {expiration_date}...")
+        try:
+            stock = yf.Ticker(ticker)
+            option_chain_object = stock.option_chain(expiration_date)
+
+            data_to_cache = {
+                'calls': option_chain_object.calls,
+                'puts': option_chain_object.puts
+            }
+
+            print(f"Caching option chain for '{ticker}'...")
+            with open(cache_path, 'wb') as f:
+                pickle.dump(data_to_cache, f)
+
+            return data_to_cache
+            
+        except Exception as e:
+            # The original error message was a bit hidden, let's make it clearer
+            print(f"Error retrieving option chain for {ticker}: {e}")
+            return None
+    
     def clear_cache(self):
         """
         Deletes all files in the cache directory.
@@ -99,6 +190,6 @@ class YahooFinanceImporter:
                 if os.path.isfile(file_path):
                     os.remove(file_path)
                     files_deleted += 1
-            print(f"✅ Cache cleared. {files_deleted} files deleted.")
+            print(f"Cache cleared. {files_deleted} files deleted.")
         except Exception as e:
             print(f"Error clearing cache: {e}")
