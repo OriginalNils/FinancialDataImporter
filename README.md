@@ -6,11 +6,14 @@ A simple yet robust Python package for downloading and caching historical stock 
 
 ## ✨ Key Features
 
-- **Simple Data Fetching**: Load historical price data with a single function call.
-- **Intelligent Caching**: Minimizes API requests with a local, file-based caching system.
-- **Configurable Cache**: Specify a custom directory for cached files, or let it default to a cache folder in your current working directory.
-- **Built-in Validation**: Automatically checks for correct date formats and logical consistency to prevent common errors.
-- **Standardized Format**: Always returns data as a clean pandas.DataFrame.
+- **Comprehensive Data Retrieval:** Fetch various types of financial data, including:
+    - Historical Prices (OHLCV)
+    - Fundamental Company Data (P/E, Sector, Market Cap, etc.)
+    - Complete Option Chains (Calls and Puts)
+- **Flexible, Modular Design:**  Built with a clean, object-oriented architecture that supports multiple data sources. The current implementation uses Yahoo Finance, but new sources will be added.
+- **Intelligent Caching:** Automatically caches all downloaded data (prices, fundamentals, options) as local files (`.pkl`). This minimizes API requests, avoids rate limits, and dramatically speeds up repeated data calls.
+- **Configurable & Manageable Cache:** You can easily specify a custom directory for all cached files. A built-in `clear_cache()` method allows for simple cache management.
+- **Robust Validation:** Prevents common errors by validating user inputs (like date ranges) before making an API request, providing clear and helpful error messages.
 
 
 ## 🚀 Installation
