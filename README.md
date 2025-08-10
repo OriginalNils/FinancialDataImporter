@@ -85,7 +85,7 @@ except Exception as e:
 This example demonstrates the two-step process for fetching option data: first, you get the available expiration dates, and then you fetch the option chain for a specific date.
 
 ```python
-from financialdataimporter import FinancialDataImporter, YahooFinanceSource
+from financialdataimporter import FinancialDataImporter, AlphaVantageSource
 
 av_source = AlphaVantageSource(api_key=AV_API_KEY)
 importer = FinancialDataImporter(source=av_source)
@@ -120,7 +120,7 @@ except Exception as e:
 If you need to force a fresh download of all data, you can use the `clear_cache` method on your data source object. This will delete all files within the specified cache directory.
 
 ```python
-from financialdataimporter import FinancialDataImporter, YahooFinanceSource
+from financialdataimporter import FinancialDataImporter, AlphaVantageSource
 
 # 1. Choose and configure the data source
 # We use a specific cache folder for this example
