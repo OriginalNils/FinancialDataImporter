@@ -2,7 +2,9 @@ import os
 import pandas as pd
 import yfinance as yf
 import pickle
-from abc import ABC, abstractmethod # Für die abstrakte Basisklasse
+from abc import ABC, abstractmethod
+from alpha_vantage.timeseries import TimeSeries
+from alpha_vantage.fundamentaldata import FundamentalData
 
 class DataSource(ABC):
     @abstractmethod
@@ -102,21 +104,70 @@ class YahooFinanceSource(DataSource):
             print(f"Cache cleared. {files_deleted} files deleted.")
         except Exception as e:
             print(f"Error clearing cache: {e}")
-    
-    # Hinweis: get_option_chain etc. könnten hier auf dieselbe Weise hinzugefügt werden.
+
 
 class AlphaVantageSource(DataSource):
-    def __init__(self, api_key: str, cache_dir: str = "cache"):
+    def __init__(self, api_key: str, cache_dir: str = "alpha_vantage_cache"):
+        if not api_key:
+            raise ValueError("An Alpha Vantage API key is required.")
         self.api_key = api_key
-        # ...
+        self.cache_dir = cache_dir
+        os.makedirs(self.cache_dir, exist_ok=True)
+        print(f"AlphaVantageSource: Cache directory is used: {self.cache_dir}")
+        
+        self._ts = TimeSeries(key=self.api_key, output_format='pandas')
+        self._fd = FundamentalData(key=self.api_key, output_format='pandas')
 
     def get_historical_data(self, ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
-        print(f"Loading data for {ticker} from Alpha Vantage...")
+        cache_path = os.path.join(self.cache_dir, f"AV_{ticker}_history.pkl")
+        if os.path.exists(cache_path):
+            print(f"Loading historical data for “{ticker}” from the Alpha Vantage cache...")
+            with open(cache_path, 'rb') as f:
+                return pickle.load(f)
 
-        raise NotImplementedError("Alpha Vantage logic has not yet been implemented.")
+        print(f"Loading historical data for “{ticker}” from Alpha Vantage...")
+        data, _ = self._ts.get_daily_adjusted(symbol=ticker, outputsize='full')
+
+        data.rename(columns={
+            '1. open': 'Open',
+            '2. high': 'High',
+            '3. low': 'Low',
+            '4. close': 'Close',
+            '5. adjusted close': 'Adj Close',
+            '6. volume': 'Volume'
+        }, inplace=True)
+        
+        data.index = pd.to_datetime(data.index)
+        
+        data = data.loc[start_date:end_date]
+        
+        data.sort_index(inplace=True)
+
+        if data.empty:
+            raise ValueError(f"No historical data found for “{ticker}” from Alpha Vantage.")
+        
+        with open(cache_path, 'wb') as f:
+            pickle.dump(data, f)
+        return data
     
     def get_fundamentals(self, ticker: str) -> dict:
-        raise NotImplementedError("Alpha Vantage logic has not yet been implemented.")
+        cache_path = os.path.join(self.cache_dir, f"AV_{ticker}_fundamentals.pkl")
+        if os.path.exists(cache_path):
+            print(f"Loading fundamental data for “{ticker}” from the Alpha Vantage cache...")
+            with open(cache_path, 'rb') as f:
+                return pickle.load(f)
+
+        print(f"Loading fundamental data for “{ticker}” from Alpha Vantage...")
+        try:
+            data, _ = self._fd.get_company_overview(symbol=ticker)
+            fundamentals = data.T.to_dict()[0]
+            
+            with open(cache_path, 'wb') as f:
+                pickle.dump(fundamentals, f)
+            return fundamentals
+        except Exception as e:
+            print(f"Error retrieving fundamental data from Alpha Vantage: {e}")
+            return {}
     
     def clear_cache(self):
         print(f"Clearing cache at: {self.cache_dir}")

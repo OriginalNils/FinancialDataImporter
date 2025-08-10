@@ -10,7 +10,7 @@ A simple yet robust Python package for downloading and caching historical stock 
     - Historical Prices (OHLCV)
     - Fundamental Company Data (P/E, Sector, Market Cap, etc.)
     - Complete Option Chains (Calls and Puts)
-- **Flexible, Modular Design:**  Built with a clean, object-oriented architecture that supports multiple data sources. The current implementation uses Yahoo Finance, but new sources will be added.
+- **Flexible, Modular Design:**  Built with a clean, object-oriented architecture that supports multiple data sources. The current implementation uses Yahoo Finance and Alpha Vantage. AV has not been tested with a premium API key.
 - **Intelligent Caching:** Automatically caches all downloaded data (prices, fundamentals, options) as local files (`.pkl`). This minimizes API requests, avoids rate limits, and dramatically speeds up repeated data calls.
 - **Configurable & Manageable Cache:** You can easily specify a custom directory for all cached files. A built-in `clear_cache()` method allows for simple cache management.
 - **Robust Validation:** Prevents common errors by validating user inputs (like date ranges) before making an API request, providing clear and helpful error messages.
@@ -33,7 +33,7 @@ pip install -e .
     
 ## 💻 Usage Example
 
-The new modular structure makes using the importer very flexible. The key is to first instantiate a specific data source (like `YahooFinanceSource`) and then pass it to the main FinancialDataImporter. Right now there is just YahooFinance as a data source
+The new modular structure makes using the importer very flexible. The key is to first instantiate a specific data source (like `YahooFinanceSource`) and then pass it to the main FinancialDataImporter. Right now there is just YahooFinance as a secured data source, Alpha Vantage did not got tested with an Premium API Key.
 
 Here's how to use it with the Yahoo Finance data source:
 
@@ -87,14 +87,14 @@ This example demonstrates the two-step process for fetching option data: first, 
 ```python
 from financialdataimporter import FinancialDataImporter, YahooFinanceSource
 
-yf_source = YahooFinanceSource(cache_dir="stock_cache")
-importer = FinancialDataImporter(source=yf_source)
+av_source = AlphaVantageSource(api_key=AV_API_KEY)
+importer = FinancialDataImporter(source=av_source)
 
 try:
     print("Fetching option data for NVIDIA (NVDA)...")
     
     # Step 1: Get all available expiration dates
-    exp_dates = yf_source.get_option_expiration_dates('NVDA') # Using the source directly
+    exp_dates = av_source.get_option_expiration_dates('NVDA') # Using the source directly
     
     if not exp_dates:
         print("No option expiration dates found.")
@@ -103,7 +103,7 @@ try:
         
         # Step 2: Fetch the full option chain for the next expiration date
         next_expiration = exp_dates[0]
-        option_data = yf_source.get_option_chain('NVDA', next_expiration) # Using the source directly
+        option_data = av_source.get_option_chain('NVDA', next_expiration) # Using the source directly
         
         if option_data:
             print(f"\n--- Call Options expiring on {next_expiration} ---")
@@ -124,8 +124,8 @@ from financialdataimporter import FinancialDataImporter, YahooFinanceSource
 
 # 1. Choose and configure the data source
 # We use a specific cache folder for this example
-yf_source = YahooFinanceSource(cache_dir="temp_cache_for_demo")
-importer = FinancialDataImporter(source=yf_source)
+av_source = AlphaVantageSource(api_key=AV_API_KEY)
+importer = FinancialDataImporter(source=av_source)
 
 # --- Run 1: Fetches data from the API and creates a cache file ---
 print("--- FIRST RUN ---")
@@ -138,7 +138,7 @@ importer.get_data('MSFT', '2025-01-01', '2025-03-01')
 # --- Clear the cache ---
 print("\n--- CLEARING CACHE ---")
 # Note: The clear_cache method is called on the source object
-yf_source.clear_cache()
+av_source.clear_cache()
 
 # --- Run 3: The cache is empty, so it fetches from the API again ---
 print("\n--- THIRD RUN ---")
