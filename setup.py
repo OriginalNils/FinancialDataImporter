@@ -7,10 +7,10 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name="financialdataimporter",
-    version="0.1.3",
+    version="0.2.0",
     author="Nils Döring",
     author_email="ndoering@students.uni-mainz.de",
-    description="A simple importer for financial market data from Yahoo Finance with caching function.",
+    description="A simple importer for financial market data from Yahoo Finance and Alpha Vantage with caching function.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/OriginalNils/FinancialDataImporter", # Optional: Link zum GitHub-Repo
