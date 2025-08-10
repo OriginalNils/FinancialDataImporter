@@ -1,6 +1,6 @@
 # 📈 Financial Data Importer
 
-A simple yet robust Python package for downloading and caching historical stock prices from Yahoo Finance. This module is designed to maximize code reusability and accelerate financial analysis projects.
+A simple yet robust Python package for downloading and caching historical stock prices from Yahoo Finance and Alpha Vantage. This module is designed to maximize code reusability and accelerate financial analysis projects.
 
 
 
