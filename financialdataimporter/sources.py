@@ -31,13 +31,14 @@ class YahooFinanceSource(DataSource):
             return pd.read_csv(cache_path, index_col=0, parse_dates=True)
 
         print(f"Downloading historical data for '{ticker}' from Yahoo Finance...")
-        data = yf.download(ticker, start=start_date, end=end_date)
+        data = yf.download(ticker, start=start_date, end=end_date, auto_adjust=True)
         
         if data.empty:
             raise ValueError(f"No historical data found for '{ticker}'.")
         
-        if isinstance(data.columns, pd.MultiIndex):
-            data.columns = data.columns.droplevel(0)
+        standard_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+    
+        data.columns = standard_columns
 
         print(f"Caching historical data for '{ticker}'...")
         data.to_csv(cache_path)
