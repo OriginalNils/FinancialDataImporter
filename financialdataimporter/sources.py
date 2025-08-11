@@ -22,19 +22,25 @@ class YahooFinanceSource(DataSource):
         print(f"YahooFinanceSource: Cache directory is used: {self.cache_dir}")
 
     def get_historical_data(self, ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
-        cache_path = os.path.join(self.cache_dir, f"{ticker}_{start_date}_{end_date}.pkl")
-        if os.path.exists(cache_path):
-            print(f"Loading historical data for '{ticker}' from the cache...")
-            with open(cache_path, 'rb') as f:
-                return pickle.load(f)
-
-        print(f"Loading historical data for '{ticker}' from Yahoo Finance...")
-        data = yf.download(ticker, start=start_date, end=end_date, auto_adjust=True)
-        if data.empty:
-            raise ValueError(f"No historical data found for '{ticker}'")
+        # Use .csv for price data as it's more standard
+        cache_path = os.path.join(self.cache_dir, f"{ticker}_{start_date}_{end_date}.csv")
         
-        with open(cache_path, 'wb') as f:
-            pickle.dump(data, f)
+        if os.path.exists(cache_path):
+            print(f"Loading historical data for '{ticker}' from cache...")
+            # Load from CSV, ensuring the first column is the index
+            return pd.read_csv(cache_path, index_col=0, parse_dates=True)
+
+        print(f"Downloading historical data for '{ticker}' from Yahoo Finance...")
+        data = yf.download(ticker, start=start_date, end=end_date)
+        
+        if data.empty:
+            raise ValueError(f"No historical data found for '{ticker}'.")
+        
+        if isinstance(data.columns, pd.MultiIndex):
+            data.columns = data.columns.droplevel(0)
+
+        print(f"Caching historical data for '{ticker}'...")
+        data.to_csv(cache_path)
         return data
 
     def get_fundamentals(self, ticker: str) -> dict:
