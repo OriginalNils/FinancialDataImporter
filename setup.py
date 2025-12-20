@@ -17,7 +17,8 @@ setup(
     
     install_requires=[
         "pandas>=1.0.0",  # Wir geben an, dass wir mindestens Version 1.0.0 von pandas benötigen
-        "yfinance>=0.1.63"
+        "yfinance>=0.1.63",
+        "alpha_vantage"
     ],
     
     packages=find_packages(),
